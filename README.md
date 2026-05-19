@@ -16,6 +16,8 @@ Install a single skill:
 npx skills@latest add adrianfernandezalv/skills skill=<name> -y -g
 ```
 
+The installer detects which agents you have installed (Claude Code, Cursor, Codex, etc.) and creates symlinks automatically for each. The skills are written and optimized for Claude Code — behavior on other agents may vary.
+
 ## Pipeline
 
 The skills are designed to work together end-to-end:
