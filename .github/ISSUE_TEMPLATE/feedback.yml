@@ -1,0 +1,28 @@
+name: Feedback
+description: Report a bug or suggest an improvement to a skill.
+labels: []
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      description: Which skill does this affect? Leave blank if general.
+      options:
+        - grill-me
+        - grill-with-docs
+        - to-prd
+        - to-issues
+        - tdd
+        - improve-codebase-architecture
+        - handoff
+        - general
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened or what would you like to see improved?
+    validations:
+      required: true
