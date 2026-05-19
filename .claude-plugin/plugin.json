@@ -1,0 +1,12 @@
+{
+  "name": "adrianfernandezalv-skills",
+  "skills": [
+    "./skills/engineering/grill-with-docs",
+    "./skills/engineering/to-prd",
+    "./skills/engineering/to-issues",
+    "./skills/engineering/tdd",
+    "./skills/engineering/improve-codebase-architecture",
+    "./skills/productivity/grill-me",
+    "./skills/productivity/handoff"
+  ]
+}
