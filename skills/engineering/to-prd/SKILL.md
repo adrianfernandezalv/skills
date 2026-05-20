@@ -78,15 +78,22 @@ A description of the things that are out of scope for this PRD.
 
 Any further notes about the feature.
 
+## Issues
+
+_(populated by /to-issues after breakdown)_
+
 </prd-template>
 
 ## Output rules
 
 **Personal project** (no `CLAUDE.local.md` or no `output: jira`):
-- If an Inkdrop note already exists: add a `## PRD` section with the PRD content. Update the note status to `active`.
-- If no note exists: create a new Inkdrop note following the note-taking.md format. Ask the user which notebook to use. Set status to `none`.
+
+- Find the project's `Spec` notebook (under the project notebook in Solo Dev). Use `list-notebooks` to locate it.
+- If a Spec note already exists for this feature: update it with the new PRD content.
+- If no note exists: create a new note in the `Spec` notebook. Title = feature name. No type/release tags. Status = `none`.
 
 **Work project** (`output: jira` in `CLAUDE.local.md`):
-- If a Jira ticket already exists: add the PRD as a comment or update the description. Note the Jira ticket URL in the Inkdrop note under `## Context`.
+
+- If a Jira ticket already exists: update the ticket **description** with the PRD. Never add it as a comment.
 - If no Jira ticket exists: create one using the Jira MCP tools with the PRD as the description.
-- Always maintain an Inkdrop note as the personal working layer (context, handoffs, outcome).
+- Do **not** create a parallel Inkdrop note for the PRD. The Journal is the only Inkdrop artifact for work projects.

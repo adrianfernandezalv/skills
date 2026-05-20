@@ -1,20 +1,18 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up.
-argument-hint: "What will the next session be used for?"
+description: Write a handoff for the next agent to pick up this issue, and log today's session in the Journal.
+argument-hint: "What will the next session focus on? (optional)"
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work.
+Write a handoff on the active issue note so the next agent can continue, and append a session log to today's Journal note.
 
-Do not duplicate content already captured in other artifacts (PRDs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+Do not duplicate content already captured in other artifacts (PRDs, ADRs, commits, diffs). Reference them by path or URL instead.
 
-If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+## Step 1 — Update the issue note
 
-Suggest the skills to be used, if any, by the next session.
+Find the active issue note in Inkdrop (use `search-notes` with the current task title, or the issue link if known). Read its full body.
 
-## Output
-
-Find the Inkdrop note for the current task (use `search-notes`). Append a dated entry under the `## Handoff` section (create the section if it doesn't exist):
+Append under `## Handoff` (create the section if it doesn't exist):
 
 ```markdown
 ## Handoff
@@ -27,4 +25,35 @@ Find the Inkdrop note for the current task (use `search-notes`). Append a dated 
 - Skills to use: <e.g. tdd, grill-with-docs>
 ```
 
-Do not replace previous handoff entries — always append. The full history must be preserved.
+Do not replace previous handoff entries — always append.
+
+If the user passed arguments, treat them as context for what the next session will focus on and tailor the Handoff entry accordingly.
+
+## Step 2 — Write the Journal log
+
+Find or create today's Journal note following the Journal rules:
+
+- **Note title**: `YYYY-MM-DD` (today's date)
+- **Notebook**: the `Journal` notebook of the current project (use `list-notebooks` to locate it; for work projects use `<Company>/<project>/Journal`)
+- If the note exists: append a new `## Log:` section. If it doesn't: create it.
+
+Append:
+
+```markdown
+## Log: <current task title>
+
+- **Prompt**: <prompt received this session>
+- **Issue**: [<issue title>](inkdrop://note/<noteId>)  ← or Jira URL for work projects
+
+### What was done
+<brief description>
+
+### How
+<brief description>
+
+### Difficulties
+<any problems encountered>
+
+### Next
+- [<next issue title>](inkdrop://note/<noteId>)
+```

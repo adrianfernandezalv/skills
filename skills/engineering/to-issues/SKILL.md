@@ -11,7 +11,7 @@ Break a plan into independently-grabbable issues using vertical slices (tracer b
 
 Before starting:
 
-1. Find the existing Inkdrop note for this task (use `search-notes`). The slices will be added there.
+1. Find the existing Inkdrop PRD/Spec note for this task (use `search-notes`). Read its full body.
 2. Check if `CLAUDE.local.md` exists at the project root. If it contains `output: jira`, this is a work project — slices will be created as Jira issues.
 
 ## Process
@@ -41,7 +41,9 @@ Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an
 Present the proposed breakdown as a numbered list. For each slice, show:
 
 - **Title**: short descriptive name
-- **Type**: HITL / AFK
+- **Type**: `feature` / `bug` / `chore` / `docs`
+- **Release**: `mvp-1` / `v1.0` / `v1.1` / `idea`
+- **HITL/AFK**: whether human interaction is required
 - **Blocked by**: which other slices (if any) must complete first
 - **User stories covered**: which user stories this addresses (if the source material has them)
 
@@ -50,7 +52,7 @@ Ask the user:
 - Does the granularity feel right? (too coarse / too fine)
 - Are the dependency relationships correct?
 - Should any slices be merged or split further?
-- Are the correct slices marked as HITL and AFK?
+- Are the type and release tags correct?
 
 Iterate until the user approves the breakdown.
 
@@ -58,29 +60,40 @@ Iterate until the user approves the breakdown.
 
 **Personal project** (no `CLAUDE.local.md` or no `output: jira`):
 
-Add a `## Slices` section to the Inkdrop note, in dependency order (blockers first):
+For each approved slice:
+
+1. Check if the required tags exist (`list-tags`). Create missing ones on-demand with `create-tag`.
+2. Create a note in the project's `Issues` notebook with status `none` and the two required tags (type + release).
+3. Use this note body:
 
 ```markdown
-## Slices
+## Spec
+- [<PRD title>](inkdrop://note/<prd-note-id>)
 
-- [ ] [AFK] Slice title — brief description
-- [ ] [HITL] Slice title — brief description
-- [ ] [AFK] Slice title (blocked by: slice above)
+## What to build
+<concise end-to-end description — no file paths, no code snippets>
+
+## Acceptance criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Blocked by
+None — or [<blocking issue title>](inkdrop://note/<noteId>)
+```
+
+4. After creating all issue notes, update the PRD/Spec note: replace the `## Issues` section (or add it) with links to every issue just created:
+
+```markdown
+## Issues
+- [Issue title](inkdrop://note/<noteId>)
+- [Issue title](inkdrop://note/<noteId>)
 ```
 
 **Work project** (`output: jira` in `CLAUDE.local.md`):
 
 Create a Jira issue for each approved slice using the Jira MCP tools. Use the issue body template below. Publish in dependency order so you can reference real ticket IDs in "Blocked by".
 
-Then add a `## Slices` section to the Inkdrop note linking to the Jira tickets:
-
-```markdown
-## Slices
-
-- [ ] [AFK] PROJ-123 — Slice title
-- [ ] [HITL] PROJ-124 — Slice title
-- [ ] [AFK] PROJ-125 — Slice title (blocked by: PROJ-123)
-```
+Then update the Jira parent ticket description to list the child tickets.
 
 <issue-template>
 ## Parent
