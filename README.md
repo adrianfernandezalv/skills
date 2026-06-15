@@ -29,8 +29,8 @@ The skills are designed to work together end-to-end:
 /to-issues                     → break the PRD into independently-grabbable slices
 /tdd                           → implement each slice with red-green-refactor
 /improve-codebase-architecture → find deepening opportunities after implementation
-/journal                       → log the session (what was done, how, what's next)
-/handoff                       → write a handoff on the active issue for the next agent
+/journal                       → reconstruct today's work from git history (work vs personal)
+/handoff                       → write a handoff comment on the active issue
 ```
 
 ## Skills
@@ -50,35 +50,44 @@ The skills are designed to work together end-to-end:
 | Skill | Description |
 |---|---|
 | `grill-me` | Interview to reach shared understanding before starting work |
-| `journal` | Log today's session in the project Journal (what was done, how, what's next) |
-| `handoff` | Write a handoff on the active issue for the next agent, and log the session |
+| `journal` | Reconstruct today's work from git history across your repos, split work vs personal |
+| `handoff` | Write a handoff comment on the active issue for the next session |
 
 ## Integrations
 
-Four skills (`to-prd`, `to-issues`, `journal`, `handoff`) persist state across sessions and adapt to whether you're working on a personal or work project.
+Four skills (`to-prd`, `to-issues`, `journal`, `handoff`) persist state across sessions and adapt to a configurable backend. Backends dispatch independently, so combinations (e.g. GitHub issues + Inkdrop journal) work out of the box.
 
-### Default (personal projects)
+### Issue backend — `output:` in `CLAUDE.local.md`
 
-Progress is saved to [Inkdrop](https://www.inkdrop.app/) using a four-notebook structure per project:
+Selects where `to-prd` / `to-issues` / `handoff` write. Default is `github` when the key is absent.
 
-| Notebook | Contents |
+| `output:` | PRD | Slices | Handoff |
+|---|---|---|---|
+| `github` (default) | Epic tracking issue (label `epic`), PRD in the body | Native **sub-issues** of the Epic, `type:`/`status:` labels, release as **milestone** | Comment on the active issue |
+| `jira` | Jira ticket description | Child Jira issues with blocking links | Comment on the ticket |
+| `inkdrop` | `Spec` notebook note | `Issues` notebook notes, type + release tags | `## Handoff` section in the issue note |
+
+With `github`, issue status is tracked by labels (no GitHub Project needed): `status: to-define` → `status: selected-for-dev` → `status: in-progress` → closed (Done); `wontfix` = dropped. Labels and milestones are created on-demand.
+
+### Journal backend — `journal-backend` in `~/.claude/CLAUDE.md`
+
+`/journal` reconstructs the day from git history and writes it where `journal-backend` says (`journal-path` gives the location):
+
+| `journal-backend` | Behavior |
 |---|---|
-| `Spec` | PRDs and architecture decision docs |
-| `Issues` | One note per issue — tagged by type (`feature`, `bug`, `chore`, `docs`) and release (`mvp-1`, `v1.0`, …) |
-| `Journal` | One note per day with a `## Log:` entry per session |
-| `Ideas` | Brainstorming without a release assigned |
+| `obsidian` (default) | Writes `<journal-path>/<date>.md` and commits it (vault is a git repo) |
+| `inkdrop` | One note per day in the `Journal` notebook |
 
-PRD notes and issue notes link to each other bidirectionally. This gives you a running record of decisions, slices, and session logs that survives context resets.
-
-### Work projects (Jira)
-
-Add a `CLAUDE.local.md` file at your project root containing:
+`/journal` scans `journal-roots` for repos, attributes commits via `journal-emails` (all your identities, across all branches), and optionally splits Work vs Personal by `journal-work-hosts`:
 
 ```
-output: jira
+# ~/.claude/CLAUDE.md
+journal-backend: obsidian
+journal-path: ~/notes/Journal
+journal-roots: ~/code                 # dirs to scan for git repos
+journal-emails: you@example.com, you@work.com
+journal-work-hosts: git.company.com   # optional — marks matching repos as "work"
 ```
-
-With this set, PRDs go into the Jira ticket description, slices become individual Jira issues with blocking relationships, and only the Journal is written to Inkdrop.
 
 ## Repository conventions
 
@@ -88,7 +97,7 @@ Some skills expect specific files to exist in your project. Create them once and
 |---|---|---|
 | `CONTEXT.md` | `grill-with-docs`, `improve-codebase-architecture`, `tdd` | Domain glossary — canonical terms and relationships for this codebase |
 | `docs/adr/` | `grill-with-docs`, `improve-codebase-architecture` | Architectural Decision Records — decisions the skills won't re-litigate |
-| `CLAUDE.local.md` | `to-prd`, `to-issues`, `journal`, `handoff` | Project-level config (e.g. `output: jira` to enable Jira mode) |
+| `CLAUDE.local.md` | `to-prd`, `to-issues`, `handoff` | Project-level config (`output:` selects the issue backend; default `github`) |
 
 `CONTEXT.md` and `docs/adr/` are created lazily by the skills themselves the first time they're needed — you don't have to set them up manually.
 

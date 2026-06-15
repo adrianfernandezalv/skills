@@ -1,59 +1,57 @@
 ---
 name: handoff
-description: Write a handoff for the next agent to pick up this issue, and log today's session in the Journal.
+description: Write a handoff on the active issue so the next session can pick it up where you left off.
 argument-hint: "What will the next session focus on? (optional)"
 ---
 
-Write a handoff on the active issue note so the next agent can continue, and append a session log to today's Journal note.
+Write a handoff on the active issue (the ticket you are leaving mid-way) so the next agent can continue. This is for **incomplete work** — a snapshot of where things stand.
 
 Do not duplicate content already captured in other artifacts (PRDs, ADRs, commits, diffs). Reference them by path or URL instead.
 
-## Step 1 — Update the issue note
+> The end-of-day **Journal** is a separate skill (`/journal`) reconstructed from git history. Handoff does NOT write the journal — they fire at different moments (handoff = leaving a ticket; journal = end of day).
 
-Find the active issue note in Inkdrop (use `search-notes` with the current task title, or the issue link if known). Read its full body.
+## Output backends
 
-Append under `## Handoff` (create the section if it doesn't exist):
+Selected by `output:` in `CLAUDE.local.md`:
 
-```markdown
-## Handoff
+- **`output: github`** — default when absent. Handoff is a **comment** on the active issue.
+- **`output: jira`** — handoff is a **comment** on the active Jira ticket.
+- **`output: inkdrop`** — handoff is appended under a `## Handoff` section in the active issue note.
 
-### YYYY-MM-DD
-- Decided: <key decisions made this session>
-- Open: <unresolved questions or pending items>
-- Files/notes/ADRs: <references to relevant artifacts>
-- Next: <what the next session should do>
-- Skills to use: <e.g. tdd, grill-with-docs>
-```
+If `output:` names an unsupported backend, stop: `backend <x> not supported; supported: github, jira, inkdrop`.
 
-Do not replace previous handoff entries — always append.
+## Identify the active issue
 
-If the user passed arguments, treat them as context for what the next session will focus on and tailor the Handoff entry accordingly.
+Determine which issue this session was working on, in order:
 
-## Step 2 — Write the Journal log
+1. An issue reference already in the conversation context.
+2. The current branch name (e.g. `42-…` or `…-issue-42`) → issue `#42`.
+3. If still ambiguous, ask the user for the issue number/URL.
 
-Find or create today's Journal note following the Journal rules:
+## Write the handoff
 
-- **Note title**: `YYYY-MM-DD` (today's date)
-- **Notebook**: the `Journal` notebook of the current project (use `list-notebooks` to locate it; for work projects use `<Company>/<project>/Journal`)
-- If the note exists: append a new `## Log:` section. If it doesn't: create it.
-
-Append:
+Use this body. If the user passed arguments, treat them as context for what the next session should focus on and tailor the `Next` line accordingly.
 
 ```markdown
-## Log: <current task title>
-
-- **Prompt**: <prompt received this session>
-- **Issue**: [<issue title>](inkdrop://note/<noteId>)  ← or Jira URL for work projects
-
-### What was done
-<brief description>
-
-### How
-<brief description>
-
-### Difficulties
-<any problems encountered>
-
-### Next
-- [<next issue title>](inkdrop://note/<noteId>)
+### Handoff — YYYY-MM-DD
+- **Decided:** <key decisions made this session>
+- **Open:** <unresolved questions or pending items>
+- **Next:** <what the next session should do>
+- **Skills to use:** <e.g. /tdd, /verify>
 ```
+
+### github (default)
+
+```bash
+gh issue comment <issue#> --body-file <tmp>
+```
+
+Comments are append-only by nature — never edit a previous handoff comment, post a new one.
+
+### jira
+
+Add the handoff as a **comment** on the active ticket via the Jira MCP tools.
+
+### inkdrop
+
+Find the active issue note (`search-notes`). Append the handoff under `## Handoff` (create the section if missing). Never replace previous entries — always append.
